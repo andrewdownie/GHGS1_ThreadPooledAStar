@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-public class SafePathResults {
+public class old_SafePathResults {
 
     private List<PathResult> pathResults;
 
-    public SafePathResults()
+    public old_SafePathResults()
     {
         pathResults = new List<PathResult>();
     }

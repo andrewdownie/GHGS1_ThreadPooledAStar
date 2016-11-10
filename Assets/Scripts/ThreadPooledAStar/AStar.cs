@@ -30,8 +30,8 @@ public static class AStar {
             if(openSet.Count == 0)
             {
                 LogOnMain("Could not find target node");
+                PathFinder.EnqueuePathResult(new PathResult(null, pr.requester, stopwatch.Elapsed.TotalMilliseconds));
                 stopwatch.Stop();
-                PathFinder.EnqueuePathResult(new PathResult(null, pr.requester, stopwatch.ElapsedMilliseconds));
                 return;
             }
 
@@ -55,39 +55,44 @@ public static class AStar {
             {
                 for (int offY = -1; offY <= 1; offY++)
                 {
-                    int curX = Mathf.RoundToInt(current.x);
-                    int curY = Mathf.RoundToInt(current.y);
+                    int currentX = Mathf.RoundToInt(current.x);
+                    int currentY = Mathf.RoundToInt(current.y);
 
-                    if(curX + offX < 0 || curX + offX >= pr.grid.GetLength(0))
+
+                    if(offX == 0 && offY == 0)
                     {
                         continue;
                     }
-                    if (curY + offY < 0 || curY + offY >= pr.grid.GetLength(1))
+                    if(currentX + offX < 0 || currentX + offX >= pr.grid.GetLength(0))
+                    {
+                        continue;
+                    }
+                    if (currentY + offY < 0 || currentY + offY >= pr.grid.GetLength(1))
                     {
                         continue;
                     }
 
-                    int vX = curX + offX;
-                    int vY = curY + offY;
-                    Vector2 v = new Vector2(vX, vY);
+                    int neighbourX = currentX + offX;
+                    int neighbourY = currentY + offY;
+                    Vector2 neighbour = new Vector2(neighbourX, neighbourY);
 
-                    if(pr.grid[vX, vY] == false || closedSet.Contains(v))
+                    if(pr.grid[neighbourX, neighbourY] == false || closedSet.Contains(neighbour))
                     {
                         continue;
                     }
-                    hCost[vX, vY] = Distance(v, target);
+                    hCost[neighbourX, neighbourY] = Distance(neighbour, target);
 
-                    int dist = Distance(current, v);
+                    int dist = Distance(current, neighbour);
 
-                    if (openSet.Contains(v) == false ||
-                       gCost(fCost, hCost, curX, curY) + dist < gCost(fCost, hCost, vX, vY) )
+                    if (openSet.Contains(neighbour) == false ||
+                       gCost(fCost, hCost, currentX, currentY) + dist < gCost(fCost, hCost, neighbourX, neighbourY) )
                     {
-                        fCost[vX, vY] = fCost[curX, curY] + dist;
-                        parent[vX, vY] = current;
+                        fCost[neighbourX, neighbourY] = fCost[currentX, currentY] + dist;
+                        parent[neighbourX, neighbourY] = current;
 
-                        if(openSet.Contains(v) == false)
+                        if(openSet.Contains(neighbour) == false)
                         {
-                            openSet.Add(v);
+                            openSet.Add(neighbour);
                         }
                     }
 
@@ -96,11 +101,10 @@ public static class AStar {
         }
 
 
-
-
-        stopwatch.Stop();
-        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), pr.requester, stopwatch.ElapsedMilliseconds);
+        
+        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), pr.requester, stopwatch.Elapsed.TotalMilliseconds);
         PathFinder.EnqueuePathResult(result);
+        stopwatch.Stop();
     }
 
 
@@ -162,11 +166,13 @@ public static class AStar {
         int dx = Mathf.RoundToInt(end.x) - Mathf.RoundToInt(start.x);
         int dy = Mathf.RoundToInt(end.y) - Mathf.RoundToInt(start.y);
 
+        dx = Mathf.Abs(dx);
+        dy = Mathf.Abs(dy);
 
         int angled = Mathf.Min(dx, dy);
         int straight = Mathf.Max(dx, dy) - angled;
 
-        return angled * 14 + straight * 10;
+        return (angled * 14) + (straight * 10);
     }
 
 

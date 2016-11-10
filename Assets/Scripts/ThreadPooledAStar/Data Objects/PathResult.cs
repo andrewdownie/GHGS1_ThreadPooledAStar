@@ -4,16 +4,16 @@
 public class PathResult
 {
     [SerializeField]
+    double timeTaken;
+    [SerializeField]
     Vector2[] path;
     [SerializeField]
     PathFinderCallback requester;
-    [SerializeField]
-    long timeTaken;
 
-    public PathResult(Vector2[] path, PathFinderCallback requester, long timeTaken)
+    public PathResult(Vector2[] path, PathFinderCallback requester, double timeTaken)
     {
-        this.requester = requester;
         this.timeTaken = timeTaken;
+        this.requester = requester;
         this.path = path;
     }
     
@@ -27,16 +27,9 @@ public class PathResult
     {
         get { return path; }
     }
-
-
-    public long TimeTakenMili
+    
+    public double TimeTaken
     {
         get { return timeTaken; }
     }
-
-    public float TimeTaken
-    {
-        get { return (float)timeTaken / 1000f; }
-    }
-
 }

@@ -30,7 +30,7 @@ public static class AStar {
             if(openSet.Count == 0)
             {
                 LogOnMain("Could not find target node");
-                PathFinder.EnqueuePathResult(new PathResult(null, pr.requester, stopwatch.Elapsed.TotalMilliseconds));
+                pr.mailbox.SafeAddResult(new PathResult(null, stopwatch.Elapsed.TotalMilliseconds));
                 stopwatch.Stop();
                 return;
             }
@@ -102,8 +102,8 @@ public static class AStar {
 
 
         
-        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), pr.requester, stopwatch.Elapsed.TotalMilliseconds);
-        PathFinder.EnqueuePathResult(result);
+        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), stopwatch.Elapsed.TotalMilliseconds);
+        pr.mailbox.SafeAddResult(result);
         stopwatch.Stop();
     }
 

@@ -7,20 +7,11 @@ public class PathResult
     double timeTaken;
     [SerializeField]
     Vector2[] path;
-    [SerializeField]
-    PathFinderCallback requester;
 
-    public PathResult(Vector2[] path, PathFinderCallback requester, double timeTaken)
+    public PathResult(Vector2[] path, double timeTaken)
     {
         this.timeTaken = timeTaken;
-        this.requester = requester;
         this.path = path;
-    }
-    
-
-    public void CallbackPathResult()
-    {
-        requester.PathRequestResult(this);
     }
     
     public Vector2[] Path

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 
-public class TestAStar : MonoBehaviour, PathFinderCallback{
+public class TestAStar : MonoBehaviour{
 
     [SerializeField]
     private Grid grid;
@@ -44,35 +44,46 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
 
     bool pathNotFound;
 
+
+    PathResultMailBox mailbox;
+
     void Start()
     {
         endPos = new Vector2(grid.Width - 1, grid.Height - 1);
         pathRep = new List<GameObject>();
         latency = 0;
         pathNotFound = false;
+        mailbox = new PathResultMailBox();
     }
 
 
     void Update()
     {
-        if(Input.GetKey(runThreaded) || fakeButtonThreaded == true || loopThreaded == true)
+        if(Input.GetKeyDown(runThreaded) || fakeButtonThreaded == true || loopThreaded == true)
         {
-            fakeButtonThreaded = false;
             ClearPathRep();
+            fakeButtonThreaded = false;
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, this);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, mailbox);
             pathFinder.RequestPath(request);
         }
 
 
-        if (Input.GetKey(runNonThreaded) || fakeButton == true || loop == true)
+        if (Input.GetKeyDown(runNonThreaded) || fakeButton == true || loop == true)
         {
             ClearPathRep();
             fakeButton = false;
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, this);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, mailbox);
             AStar.FindPath(request);
         }
+
+
+        if (mailbox.UnsafeHasResult())
+        {
+            PathFound(mailbox.SafeGetResult());
+        }
+
     }
     
 
@@ -89,7 +100,7 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
         }
     }
 
-    void PathFinderCallback.PathRequestResult(PathResult result)
+    void PathFound(PathResult result)
     {
         lastTimeTaken = result.TimeTaken;
         latency = stopwatch.Elapsed.TotalMilliseconds;
@@ -115,7 +126,7 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
     {
         GUI.Label(new Rect(20, 20, 500, 22), "Paths run from bottom left to top right:");
         GUI.Label(new Rect(20, 40, 500, 22), "\tPress '" + runNonThreaded.ToString() + "' to request path on the main unity thread");
-        GUI.Label(new Rect(20, 60, 500, 22), "\tPress '" + runThreaded.ToString() + "' to request path on a thread-pool thread");
+        GUI.Label(new Rect(20, 60, 500, 22), "\tPress '" + runThreaded.ToString() + "' to request path on a thread-pool thread (does not work in webgl)");
 
 
         if (latency > 0)

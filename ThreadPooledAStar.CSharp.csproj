@@ -67,7 +67,7 @@
     <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\Grid.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\PathRequest.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\PathResult.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\SafeQueue.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\PathResultMailBox.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\PathFinder.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\PathFinderCallback.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\TestAStar.cs" />

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class TestAStar : MonoBehaviour, PathFinderCallback{
@@ -9,6 +9,9 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
 
     [SerializeField]
     PathFinder pathFinder;
+
+    [SerializeField]
+    GameObject pathModel;
 
 
     [Header("Testing Threaded")]
@@ -30,12 +33,13 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
     Vector2 endPos;
 
 
-    [SerializeField]
-    PathResult lastPathResult;
+
+    List<GameObject> pathRep;
 
     void Start()
     {
         endPos = new Vector2(grid.Width - 1, grid.Height - 1);
+        pathRep = new List<GameObject>();
         //Debug.Log(System.Threading.Thread.CurrentThread.ManagedThreadId);
     }
 
@@ -59,18 +63,24 @@ public class TestAStar : MonoBehaviour, PathFinderCallback{
             AStar.FindPath(request);
         }
     }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.black;
-        for (int i = 0; i < lastPathResult.Path.Length - 1; i++)
-        {
-            Gizmos.DrawLine(lastPathResult.Path[i], lastPathResult.Path[i + 1]);
-        }
-    }
+    
 
     void PathFinderCallback.PathRequestResult(PathResult result)
     {
-        lastPathResult = result;
+        if(pathRep != null) {
+            for(int i =  pathRep.Count - 1; i > 0; i--)
+            {
+                Destroy(pathRep[i]);
+            }
+
+            pathRep.Clear();
+        }
+
+
+        foreach(Vector2 v in result.Path)
+        {
+            GameObject go = (GameObject)Instantiate(pathModel, new Vector3(v.x, grid.FloorLevel, v.y), Quaternion.identity, transform);
+            pathRep.Add(go);
+        }
     }
 }

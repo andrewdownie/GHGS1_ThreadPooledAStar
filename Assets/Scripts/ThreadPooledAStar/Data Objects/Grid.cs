@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Grid : MonoBehaviour {
     [SerializeField]
-    int width = 20, height = 20;
+    int width = 20, height = 20, floorLevel = 2;
 
     [SerializeField]
     GameObject walkableTile, nonWalkableTile;
@@ -11,6 +11,11 @@ public class Grid : MonoBehaviour {
 
     GameObject[,] model;
     bool[,] walkable;
+
+    public int FloorLevel
+    {
+        get { return floorLevel; }
+    }
 
     public int Width
     {
@@ -33,30 +38,33 @@ public class Grid : MonoBehaviour {
         walkable = new bool[width, height];
 
 
+
         for(int x = 0; x < width; x++)
         {
-            for(int y = 0; y < height; y++)
+            for(int z = 0; z < height; z++)
             {
                 bool w = Random.Range(0, 3) > 0;
 
-                if((x == 0 && y == 0) || (x == width - 1 && y == height - 1)){
+                if((x == 0 && z == 0) || (x == width - 1 && z == height - 1)){
                     w = true;
                 }
 
-                walkable[x, y] = w;
+                walkable[x, z] = w;
 
 
                 GameObject go;
                 if (w)
                 {
-                    go = (GameObject)Instantiate(walkableTile, new Vector3(x, y, 2), Quaternion.identity, transform);
+                    go = new GameObject();
+                    go.transform.parent = transform;
+                    go.transform.position = new Vector3(x, floorLevel, z);
                 }
                 else
                 {
-                    go = (GameObject)Instantiate(nonWalkableTile, new Vector3(x, y, 2), Quaternion.identity, transform);
+                    go = (GameObject)Instantiate(nonWalkableTile, new Vector3(x, floorLevel, z), Quaternion.identity, transform);
                 }
 
-
+                go.name = "[" + x.ToString("000") + ", " + floorLevel.ToString("000") + ", " + z.ToString("000") + "]";
 
             }
         }

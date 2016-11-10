@@ -72,7 +72,9 @@ public class PathFinder : MonoBehaviour
         while (pr != null)
         {
 
-            if(pr.Path == null || pr.Path.Length == 0)
+            pr.CallbackPathResult();
+
+           /* if(pr.Path == null || pr.Path.Length == 0)
             {
                 Debug.Log("path was null or had zero elements");
                 
@@ -85,7 +87,7 @@ public class PathFinder : MonoBehaviour
                     Debug.Log(v.x + ":" + v.y);//Need to print the path found
                 }
                 
-            }
+            }*/
 
             
  
@@ -99,16 +101,5 @@ public class PathFinder : MonoBehaviour
 
     
 
-    static void Run()
-    {
-        
-        for (int x = 0; x < 10; x++)
-        {
-            ThreadPool.QueueUserWorkItem(
-                new WaitCallback(AStar.FindPath),
-                new PathRequest(null, new Vector2(x, x), new Vector2(x, x))
-            );
-            
-        }
-    }
+   
 }

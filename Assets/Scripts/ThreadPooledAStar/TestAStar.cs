@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class TestAStar : MonoBehaviour {
+public class TestAStar : MonoBehaviour, PathFinderCallback{
 
     [SerializeField]
     private Grid grid;
@@ -22,14 +23,19 @@ public class TestAStar : MonoBehaviour {
     [SerializeField]
     bool loop;
 
-    [Header("Start and end")]
+    [Header("Start pos (end defaults to [max, max])")]
     [SerializeField]
     Vector2 startPos;
-    [SerializeField]
+
     Vector2 endPos;
+
+
+    [SerializeField]
+    PathResult lastPathResult;
 
     void Start()
     {
+        endPos = new Vector2(grid.Width - 1, grid.Height - 1);
         //Debug.Log(System.Threading.Thread.CurrentThread.ManagedThreadId);
     }
 
@@ -40,7 +46,7 @@ public class TestAStar : MonoBehaviour {
         {
             fakeButtonThreaded = false;
 
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, this);
             pathFinder.RequestPath(request);
         }
 
@@ -49,12 +55,22 @@ public class TestAStar : MonoBehaviour {
         {
             fakeButton = false;
 
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, this);
             AStar.FindPath(request);
         }
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        for (int i = 0; i < lastPathResult.Path.Length - 1; i++)
+        {
+            Gizmos.DrawLine(lastPathResult.Path[i], lastPathResult.Path[i + 1]);
+        }
+    }
 
-
-
+    void PathFinderCallback.PathRequestResult(PathResult result)
+    {
+        lastPathResult = result;
+    }
 }

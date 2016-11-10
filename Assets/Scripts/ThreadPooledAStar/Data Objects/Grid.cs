@@ -12,10 +12,15 @@ public class Grid : MonoBehaviour {
     GameObject[,] model;
     bool[,] walkable;
 
-    public Cell this[int x, int y]
+    public int Width
     {
-        get { return new Cell(x, y, walkable[x, y], model[x, y]); }
+        get { return width; }
     }
+    public int Height
+    {
+        get { return height; }
+    }
+
 
     public bool[,] Walkable
     {
@@ -32,18 +37,23 @@ public class Grid : MonoBehaviour {
         {
             for(int y = 0; y < height; y++)
             {
-                bool w = Random.Range(0, 5) > 0;
+                bool w = Random.Range(0, 3) > 0;
+
+                if((x == 0 && y == 0) || (x == width - 1 && y == height - 1)){
+                    w = true;
+                }
+
                 walkable[x, y] = w;
 
 
                 GameObject go;
                 if (w)
                 {
-                    go = (GameObject)Instantiate(walkableTile, new Vector3(x, y), Quaternion.identity, transform);
+                    go = (GameObject)Instantiate(walkableTile, new Vector3(x, y, 2), Quaternion.identity, transform);
                 }
                 else
                 {
-                    go = (GameObject)Instantiate(nonWalkableTile, new Vector3(x, y), Quaternion.identity, transform);
+                    go = (GameObject)Instantiate(nonWalkableTile, new Vector3(x, y, 2), Quaternion.identity, transform);
                 }
 
 

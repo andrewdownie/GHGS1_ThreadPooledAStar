@@ -64,15 +64,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ThreadPooledAStar\AStar.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\Cell.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\Grid.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\Grid.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\PathRequest.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\PathResult.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\Data Objects\SafeQueue.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\PathFinder.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\PathRequest.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\PathResult.cs" />
-    <Compile Include="Assets\Scripts\ThreadPooledAStar\SafeQueue.cs" />
+    <Compile Include="Assets\Scripts\ThreadPooledAStar\PathFinderCallback.cs" />
     <Compile Include="Assets\Scripts\ThreadPooledAStar\TestAStar.cs" />
-    <Compile Include="Assets\Scripts\VInt2_old.cs" />
-    <Compile Include="Assets\Scripts\old_SafePathResults.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

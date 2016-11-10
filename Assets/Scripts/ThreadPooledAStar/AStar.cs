@@ -31,7 +31,7 @@ public static class AStar {
             {
                 LogOnMain("Could not find target node");
                 stopwatch.Stop();
-                PathFinder.EnqueuePathResult(new PathResult(null, stopwatch.ElapsedMilliseconds));
+                PathFinder.EnqueuePathResult(new PathResult(null, pr.requester, stopwatch.ElapsedMilliseconds));
                 return;
             }
 
@@ -99,7 +99,7 @@ public static class AStar {
 
 
         stopwatch.Stop();
-        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), stopwatch.ElapsedMilliseconds);
+        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), pr.requester, stopwatch.ElapsedMilliseconds);
         PathFinder.EnqueuePathResult(result);
     }
 

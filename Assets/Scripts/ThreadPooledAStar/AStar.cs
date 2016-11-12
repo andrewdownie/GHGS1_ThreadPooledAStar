@@ -1,53 +1,66 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public static class AStar {
+public static class AStar
+{
 
-	public static void FindPath(object pathRequest)
+    public static void FindPath(object pathRequest)
     {
         System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
 
         PathRequest pr = (PathRequest)pathRequest;
-        List<Vector2> openSet = new List<Vector2>();
-        List<Vector2> closedSet = new List<Vector2>();
+
+
+        AstarHeap openset = new AstarHeap();
+
+
+        
+        List<int2> closedSet = new List<int2>();
 
 
         int gridWidth = pr.grid.GetLength(0);
         int gridHeight = pr.grid.GetLength(1);
-        Vector2[,] parent = new Vector2[gridWidth, gridHeight];
+
+
+        int2[,] parent = new int2[gridWidth, gridHeight];
         int[,] hCost = new int[gridWidth, gridHeight];
         int[,] fCost = new int[gridWidth, gridHeight];
+     
 
-        Vector2 current = pr.startPos;
-        Vector2 target = pr.endPos;
-        int currentHCost = Distance(current, target);
+        int endX = (int)pr.endPos.x;
+        int endY = (int)pr.endPos.y;
 
-        openSet.Add(current);
+        int startX = (int)pr.startPos.x;
+        int startY = (int)pr.startPos.y;
+        openset.Add(startX, startY, 0, Distance(startX, startY, endX, endY));
 
+
+        int curX = -1, curY = -1;
+
+        
         while (true)
         {
-            if(openSet.Count == 0)
+
+            if (openset.Count == 0)
             {
-                LogOnMain("Could not find target node");
                 pr.mailbox.SafeAddResult(new PathResult(null, stopwatch.Elapsed.TotalMilliseconds));
                 stopwatch.Stop();
                 return;
             }
 
 
-            current = LowestFCost(fCost, hCost, openSet);
-            currentHCost = hCost[ (int)current.x, (int)current.y ];
-            openSet.Remove(current);
-            closedSet.Add(current);
+            openset.PopMinValue(out curX, out curY);
+            closedSet.Add(new int2(curX, curY));
 
 
-            if(current == target)
+
+            if (curX == endX && curY == endY)
             {
                 break;
             }
 
-
+            
             ///
             /// Go thorugh each neighbour, and do the entire algo
             ///
@@ -55,102 +68,80 @@ public static class AStar {
             {
                 for (int offY = -1; offY <= 1; offY++)
                 {
-                    int currentX = Mathf.RoundToInt(current.x);
-                    int currentY = Mathf.RoundToInt(current.y);
+                     
 
+                    int neighbourX = curX + offX;
+                    int neighbourY = curY + offY;
 
-                    if(offX == 0 && offY == 0)
+                    if (offX == 0 && offY == 0)
                     {
                         continue;
                     }
-                    if(currentX + offX < 0 || currentX + offX >= pr.grid.GetLength(0))
+                    if (curX + offX < 0 || curX + offX >= pr.grid.GetLength(0))
                     {
                         continue;
                     }
-                    if (currentY + offY < 0 || currentY + offY >= pr.grid.GetLength(1))
+                    if (curY + offY < 0 || curY + offY >= pr.grid.GetLength(1))
                     {
                         continue;
                     }
 
-                    int neighbourX = currentX + offX;
-                    int neighbourY = currentY + offY;
+                    
                     Vector2 neighbour = new Vector2(neighbourX, neighbourY);
 
-                    if(pr.grid[neighbourX, neighbourY] == false || closedSet.Contains(neighbour))
+                    if (pr.grid[neighbourX, neighbourY] == false || closedSet.Contains(new int2(neighbourX, neighbourY)))
                     {
                         continue;
                     }
-                    hCost[neighbourX, neighbourY] = Distance(neighbour, target);
+                    hCost[neighbourX, neighbourY] = Distance(neighbourX, neighbourY, endX, endY);
 
-                    int dist = Distance(current, neighbour);
+                    int dist = Distance(curX, curY, neighbourX, neighbourY);
+                    
 
-                    if (openSet.Contains(neighbour) == false ||
-                       gCost(fCost, hCost, currentX, currentY) + dist < gCost(fCost, hCost, neighbourX, neighbourY) )
+                    if (openset.Contains(neighbourX, neighbourY) == false ||
+                       gCost(fCost, hCost, curX, curY) + dist < gCost(fCost, hCost, neighbourX, neighbourY))
                     {
-                        fCost[neighbourX, neighbourY] = fCost[currentX, currentY] + dist;
-                        parent[neighbourX, neighbourY] = current;
+                        fCost[neighbourX, neighbourY] = fCost[curX, curY] + dist;
+                        parent[neighbourX, neighbourY] = new int2(curX, curY);
+                        
 
-                        if(openSet.Contains(neighbour) == false)
+                        if (openset.Contains(neighbourX, neighbourY) == false)
                         {
-                            openSet.Add(neighbour);
+                            openset.Add(neighbourX, neighbourY, fCost[neighbourX, neighbourY], hCost[neighbourX, neighbourY]);
                         }
                     }
 
+                    
+                    
                 }
             }
         }
 
 
-        
-        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), stopwatch.Elapsed.TotalMilliseconds);
+
+        PathResult result = new PathResult(RebuildPath(startX, startY, endX, endY, parent), stopwatch.Elapsed.TotalMilliseconds);
         pr.mailbox.SafeAddResult(result);
         stopwatch.Stop();
     }
 
 
-    private static Vector2 LowestFCost(int[,] fCost, int[,] hCost, List<Vector2> vList)
-    {
-        Vector2 lowest = vList[0];
-
-
-        foreach(Vector2 v in vList)
-        {
-            if (fCost[(int)v.x, (int)v.y] < fCost[(int)lowest.x, (int)lowest.y])
-            {
-                lowest = v;
-            }
-            else if(fCost[(int)v.x, (int)v.y] == fCost[(int)lowest.x, (int)lowest.y])
-            {
-                if(gCost(fCost, hCost, (int)v.x, (int)v.y) < gCost(fCost, hCost, (int)lowest.x, (int)lowest.y)){
-                    lowest = v;
-                }
-            }
-        }
-
-
-        return lowest;
-    }
-
-    private static Vector2[] RebuildPath(Vector2 startNode, Vector2 endNode, Vector2[,] parent)
+    private static int2[] RebuildPath(int startX, int startY, int endX, int endY, int2[,] parent)
     {
 
+        List<int2> path = new List<int2>();
+        int2 current = new int2(endX, endY);
 
-        List<Vector2> path = new List<Vector2>();
-        Vector2 current = endNode;
-
-        //LogOnMain("Current v2: " + current);
-
-        while(current != startNode)
+        while (!current.Equals(new int2(startX, startY)))
         {
             path.Add(current);
             current = parent[(int)current.x, (int)current.y];
         }
 
-        path.Add(startNode);
+        path.Add(new int2(startX, startY));
 
         path.Reverse();
 
-        
+
         return path.ToArray();
     }
 
@@ -161,29 +152,43 @@ public static class AStar {
     }
 
 
-    public static int Distance(Vector2 start, Vector2 end)
+    public static int Distance(int2 start, int2 end)
     {
-        int dx = Mathf.RoundToInt(end.x) - Mathf.RoundToInt(start.x);
-        int dy = Mathf.RoundToInt(end.y) - Mathf.RoundToInt(start.y);
+        int dx = Mathf.Abs(end.x - start.x);
+        int dy = Mathf.Abs(end.y - start.y);
+        
 
-        dx = Mathf.Abs(dx);
-        dy = Mathf.Abs(dy);
+        if(dx < dy)
+        {
+            return dx * 14 + dy * 10;
+        }
 
-        int angled = Mathf.Min(dx, dy);
-        int straight = Mathf.Max(dx, dy) - angled;
+        return dy * 14 + dx * 10;
+    }
 
-        return (angled * 14) + (straight * 10);
+    public static int Distance(int startX, int startY, int endX, int endY)
+    {
+        int dx = Mathf.Abs(endX - startX);
+        int dy = Mathf.Abs(endY - startY);
+
+
+        if (dx < dy)
+        {
+            return dx * 14 + dy * 10;
+        }
+
+        return dy * 14 + dx * 10;
     }
 
 
-   
 
-    private static void LogOnMain(string message)
+
+    /*private static void LogOnMain(string message)
     {
-        if(System.Threading.Thread.CurrentThread.ManagedThreadId == 1)
+        if (System.Threading.Thread.CurrentThread.ManagedThreadId == 1)
         {
             Debug.Log(message);
         }
-    }
-    
+    }*/
+
 }

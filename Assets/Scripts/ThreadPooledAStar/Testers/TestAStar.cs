@@ -114,9 +114,9 @@ public class TestAStar : MonoBehaviour{
         }
 
 
-        foreach(Vector2 v in result.Path)
+        foreach(int2 i2 in result.Path)
         {
-            GameObject go = (GameObject)Instantiate(pathModel, new Vector3(v.x, grid.FloorLevel, v.y), Quaternion.identity, transform);
+            GameObject go = (GameObject)Instantiate(pathModel, new Vector3(i2.x, grid.FloorLevel, i2.y), Quaternion.identity, transform);
             pathRep.Add(go);
         }
     }

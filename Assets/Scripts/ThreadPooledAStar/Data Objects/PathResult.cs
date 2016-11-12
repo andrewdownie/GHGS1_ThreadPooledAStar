@@ -6,15 +6,15 @@ public class PathResult
     [SerializeField]
     double timeTaken;
     [SerializeField]
-    Vector2[] path;
+    int2[] path;
 
-    public PathResult(Vector2[] path, double timeTaken)
+    public PathResult(int2[] path, double timeTaken)
     {
         this.timeTaken = timeTaken;
         this.path = path;
     }
     
-    public Vector2[] Path
+    public int2[] Path
     {
         get { return path; }
     }

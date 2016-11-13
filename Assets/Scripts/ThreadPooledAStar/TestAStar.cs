@@ -6,9 +6,7 @@ public class TestAStar : MonoBehaviour{
 
     [SerializeField]
     private Grid grid;
-
-    [SerializeField]
-    PathFinder pathFinder;
+   
 
     [SerializeField]
     GameObject pathModel;
@@ -45,7 +43,7 @@ public class TestAStar : MonoBehaviour{
     bool pathNotFound;
 
 
-    PathResultMailBox mailbox;
+    PathRequestMailBox mailbox;
 
     void Start()
     {
@@ -53,7 +51,7 @@ public class TestAStar : MonoBehaviour{
         pathRep = new List<GameObject>();
         latency = 0;
         pathNotFound = false;
-        mailbox = new PathResultMailBox();
+        mailbox = new PathRequestMailBox();
     }
 
 
@@ -64,8 +62,8 @@ public class TestAStar : MonoBehaviour{
             ClearPathRep();
             fakeButtonThreaded = false;
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, mailbox);
-            pathFinder.RequestPath(request);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos);
+            mailbox.RequestPath(request);
         }
 
 
@@ -74,8 +72,8 @@ public class TestAStar : MonoBehaviour{
             ClearPathRep();
             fakeButton = false;
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos, mailbox);
-            AStar.FindPath(request);
+            PathRequest request = new PathRequest(grid.Walkable, startPos, endPos);
+            PathFound(AStar.FindPath(request));
         }
 
 

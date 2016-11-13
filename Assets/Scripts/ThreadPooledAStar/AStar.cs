@@ -3,24 +3,30 @@ using System.Collections.Generic;
 
 public static class AStar {
 
-	public static void FindPath(object pathRequest)
+    public static void FindPath(object mailboxRequest)
+    {
+        MailboxRequest mbr = (MailboxRequest)mailboxRequest;
+        PathResult result = FindPath(mbr.pathRequest);
+        mbr.mailbox.SafeAddResult(result);
+    }
+
+	public static PathResult FindPath(PathRequest request)
     {
         System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-
-        PathRequest pr = (PathRequest)pathRequest;
+        
         List<Vector2> openSet = new List<Vector2>();
         List<Vector2> closedSet = new List<Vector2>();
 
 
-        int gridWidth = pr.grid.GetLength(0);
-        int gridHeight = pr.grid.GetLength(1);
+        int gridWidth = request.grid.GetLength(0);
+        int gridHeight = request.grid.GetLength(1);
         Vector2[,] parent = new Vector2[gridWidth, gridHeight];
         int[,] hCost = new int[gridWidth, gridHeight];
         int[,] fCost = new int[gridWidth, gridHeight];
 
-        Vector2 current = pr.startPos;
-        Vector2 target = pr.endPos;
+        Vector2 current = request.startPos;
+        Vector2 target = request.endPos;
         int currentHCost = Distance(current, target);
 
         openSet.Add(current);
@@ -30,9 +36,8 @@ public static class AStar {
             if(openSet.Count == 0)
             {
                 LogOnMain("Could not find target node");
-                pr.mailbox.SafeAddResult(new PathResult(null, stopwatch.Elapsed.TotalMilliseconds));
                 stopwatch.Stop();
-                return;
+                return new PathResult(null, stopwatch.Elapsed.TotalMilliseconds);
             }
 
 
@@ -63,11 +68,11 @@ public static class AStar {
                     {
                         continue;
                     }
-                    if(currentX + offX < 0 || currentX + offX >= pr.grid.GetLength(0))
+                    if(currentX + offX < 0 || currentX + offX >= request.grid.GetLength(0))
                     {
                         continue;
                     }
-                    if (currentY + offY < 0 || currentY + offY >= pr.grid.GetLength(1))
+                    if (currentY + offY < 0 || currentY + offY >= request.grid.GetLength(1))
                     {
                         continue;
                     }
@@ -76,7 +81,7 @@ public static class AStar {
                     int neighbourY = currentY + offY;
                     Vector2 neighbour = new Vector2(neighbourX, neighbourY);
 
-                    if(pr.grid[neighbourX, neighbourY] == false || closedSet.Contains(neighbour))
+                    if(request.grid[neighbourX, neighbourY] == false || closedSet.Contains(neighbour))
                     {
                         continue;
                     }
@@ -102,9 +107,9 @@ public static class AStar {
 
 
         
-        PathResult result = new PathResult(RebuildPath(pr.startPos, pr.endPos, parent), stopwatch.Elapsed.TotalMilliseconds);
-        pr.mailbox.SafeAddResult(result);
+        PathResult result = new PathResult(RebuildPath(request.startPos, request.endPos, parent), stopwatch.Elapsed.TotalMilliseconds);
         stopwatch.Stop();
+        return result;
     }
 
 
